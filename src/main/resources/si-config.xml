@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
+	xmlns:int-file="http://www.springframework.org/schema/integration/file"
+	xmlns:int-http="http://www.springframework.org/schema/integration/http"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/integration
+        http://www.springframework.org/schema/integration/spring-integration-4.1.xsd
+        http://www.springframework.org/schema/integration/stream
+        http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
+        http://www.springframework.org/schema/integration/http
+        http://www.springframework.org/schema/integration/http/spring-integration-http-4.1.xsd
+        ">
+
+	<int:poller default="true" fixed-delay="50" />
+
+	<int:gateway service-interface="gateway.FilmRatingGateway"
+		id="filmRatingGateway">
+		<int:method name="getAllFilms" request-channel="GetAllFilmsChannel"
+			request-timeout="1000" />
+		<int:method name="getAllFilmsOfGenre" request-channel="GetAllFilmsOfGenreChannel"
+			request-timeout="1000" />
+		<int:method name="getAllFilmsOfDirector" request-channel="GetAllFilmsOfDirectorChannel"
+			request-timeout="1000" />
+		<int:method name="getAllFilmsOfActor" request-channel="GetAllFilmsOfActorChannel"
+			request-timeout="1000" />
+		<int:method name="getAllFilmsBetweenLength" request-channel="GetAllFilmsBetweenLengthChannel"
+			request-timeout="1000" />
+		<int:method name="getFilmData" request-channel="GetFilmDataChannel"
+			request-timeout="1000" />
+		<int:method name="addRating" request-channel="AddRatingChannel"
+			request-timeout="1000" />
+		<int:method name="getRatingsOfFilm" request-channel="GetRatingsOfFilmChannel"
+			request-timeout="1000" />
+		<int:method name="getAverageRatingOfFilm" request-channel="GetAverageRatingOfFilmChannel"
+			request-timeout="1000" />
+		<int:method name="getOmdbFilmData" request-channel="GetOmdbFilmDataChannel"
+			request-timeout="1000" />
+	</int:gateway>
+	
+	<int:channel id="GetAllFilmsChannel">
+		<int:queue/>
+	</int:channel>
+	<int:channel id="GetAllFilmsOfGenreChannel"/>
+	<int:channel id="GetAllFilmsOfDirectorChannel"/>
+	<int:channel id="GetAllFilmsOfActorChannel"/>
+	<int:channel id="GetAllFilmsBetweenLengthChannel">
+		<int:queue/>
+	</int:channel>
+	<int:channel id="GetFilmDataChannel"/>
+	<int:channel id="AddRatingChannel"/>
+	<int:channel id="GetRatingsOfFilmChannel"/>
+	<int:channel id="GetAverageRatingOfFilmChannel"/>
+	<int:channel id="GetOmdbFilmDataChannel" />
+
+	<int-stream:stdout-channel-adapter
+		id="stdOutAdapter" channel="stdOutChannel" append-newline="true" />
+	<int:channel id="stdOutChannel" />
+	
+	<int-http:outbound-gateway request-channel="GetAllFilmsChannel"
+		url="http://localhost:8081/distributed-systems-server/getAllFilms"
+		http-method="GET"
+		expected-response-type="model.Film[]">
+	</int-http:outbound-gateway>
+	
+	<int-http:outbound-gateway request-channel="GetAllFilmsOfGenreChannel"
+		url="http://localhost:8081/distributed-systems-server/getAllFilmsOfGenre?genre={genre}"
+		http-method="GET"
+		expected-response-type="model.Film[]">
+		<int-http:uri-variable name="genre" expression="payload" />
+	</int-http:outbound-gateway>
+	
+	<int-http:outbound-gateway request-channel="GetAllFilmsOfDirectorChannel"
+		url="http://localhost:8081/distributed-systems-server/getAllFilmsOfDirector?director={director}"
+		http-method="GET"
+		expected-response-type="model.Film[]">
+		<int-http:uri-variable name="director" expression="payload" />
+	</int-http:outbound-gateway>
+	
+	<int-http:outbound-gateway request-channel="GetAllFilmsOfActorChannel"
+		url="http://localhost:8081/distributed-systems-server/getAllFilmsOfActor?actor={actor}"
+		http-method="GET"
+		expected-response-type="model.Film[]">
+		<int-http:uri-variable name="actor" expression="payload" />
+	</int-http:outbound-gateway>
+
+	<int-http:outbound-gateway request-channel="GetAllFilmsBetweenLengthChannel"
+		url="http://localhost:8081/distributed-systems-server/getAllFilmsBetweenLength"
+		http-method="GET"
+		expected-response-type="model.Film[]"
+		header-mapper="headerMapperGetFilmsBetweenLength">
+	</int-http:outbound-gateway>
+	
+	<bean id="headerMapperGetFilmsBetweenLength"
+		class="org.springframework.integration.http.support.DefaultHttpHeaderMapper">
+		<property name="outboundHeaderNames" value="min, max" />
+		<property name="userDefinedHeaderPrefix" value="" />
+	</bean>
+	
+	<int-http:outbound-gateway request-channel="GetFilmDataChannel"
+		url="http://localhost:8081/distributed-systems-server/getFilmData?title={title}"
+		http-method="GET"
+		expected-response-type="model.Film">
+		<int-http:uri-variable name="title" expression="payload" />
+	</int-http:outbound-gateway>
+	
+	<int-http:outbound-gateway request-channel="AddRatingChannel"
+		url="http://localhost:8081/distributed-systems-server/addRating?title={title}"
+		http-method="GET"
+		expected-response-type="java.lang.Boolean"
+		header-mapper="headerMapperAddRating">
+		<int-http:uri-variable name="title" expression="payload" />
+	</int-http:outbound-gateway>
+	
+	<bean id="headerMapperAddRating"
+		class="org.springframework.integration.http.support.DefaultHttpHeaderMapper">
+		<property name="outboundHeaderNames" value="opinion" />
+		<property name="userDefinedHeaderPrefix" value="" />
+	</bean>
+	
+	<int-http:outbound-gateway request-channel="GetRatingsOfFilmChannel"
+		url="http://localhost:8081/distributed-systems-server/getRatingsOfFilm?title={title}"
+		http-method="GET"
+		expected-response-type="model.Rating[]">
+		<int-http:uri-variable name="title" expression="payload" />
+	</int-http:outbound-gateway>
+	
+	<int-http:outbound-gateway request-channel="GetAverageRatingOfFilmChannel"
+		url="http://localhost:8081/distributed-systems-server/getAverageRatingOfFilm?title={title}"
+		http-method="GET"
+		expected-response-type="model.Opinion">
+		<int-http:uri-variable name="title" expression="payload" />
+	</int-http:outbound-gateway>
+	
+	<int-http:outbound-gateway request-channel="GetOmdbFilmDataChannel"
+		url="http://localhost:8081/distributed-systems-server/getOmdbFilmData?title={title}"
+		http-method="GET"
+		expected-response-type="model.Film">
+		<int-http:uri-variable name="title" expression="payload" />
+	</int-http:outbound-gateway>
+
+</beans>
