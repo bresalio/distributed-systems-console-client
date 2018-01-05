@@ -53,18 +53,26 @@ As you can see, you can optionally also rewrite info about the deployment name h
 ### Running the JAR from command line
 
 If all of the previous workaround operations are completed, we can finally run the program.
-We can do so in an IDE (e.g. Eclipse) internally, but we can also run a JAR (Java ARchive) file from command line.
-The following steps assume that you have installed Java on your machine.
+We can do so in an IDE (e.g. Eclipse) internally, but we can also run a .jar (Java ARchive) file from command line.
+The following steps assume that you have installed Maven on your machine.
 
-* Create an executable .jar file from the downloaded(/modified) source (with app/Main as the entry class).
-Make sure during the creation that you set the referenced libraries (dependencies) to be extracted into the .jar, for it to work properly.
+How to create an executable .jar file from the downloaded source code:
+* Open command line and navigate to the root folder of the downloaded project.
+* Type the following command:
+```
+mvn clean package
+```
+* When the build has ended with success, you should find two generated .jar files in the "/target" folder:
+their names end in "-0.0.1-SNAPSHOT" and "-0.0.1-SNAPSHOT.one-jar". (You can copy/rename the files.)
+The second one is the so-called "fat" .jar, containing the dependencies.
+This is the one you should run.
 
-* Run the .jar from command line with this command:
+* Run the .jar file with this command (where <distributed-systems-console-client> refers to the path and name of the .jar file):
 ```
 java -jar <distributed-systems-console-client>.jar
 ```
 
-* Wait for the program's own prompt (">>") to appear, and type your command (and arguments) after it.
+* Wait for the program's own prompt (">> ") to appear, and type your command (and arguments) after it.
 
 ## Commands
 
