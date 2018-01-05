@@ -1,7 +1,7 @@
 # Distributed Systems - console client (example app)
 
 This is a demo Java console app demonstrating the usage of Spring Integration.
-For the server application it connects to, see [Distributed Systems - server] (https://github.com/bresalio/distributed-systems-server).
+For the server application it connects to, see [Distributed Systems - server](https://github.com/bresalio/distributed-systems-server).
 
 ## Built With
 
@@ -15,7 +15,7 @@ Due to the fact that this program is a client to a server app, we need to do som
 
 ### Deploying the server app
 
-Before running this app, you must deploy [Distributed Systems - server] (https://github.com/bresalio/distributed-systems-server).
+Before running this app, you must deploy [Distributed Systems - server](https://github.com/bresalio/distributed-systems-server).
 About how to deploy this server app, you can read in its readme file.
 
 For verifying whether the server has been deployed correctly, test its endpoints with HTTP calls (as documented in its readme),
@@ -32,12 +32,12 @@ The response body JSON should contain the following fields: "title", "genre", "d
 
 ### Setting the host and port in Spring configuration
 
-As the client app makes calls to the server endpoints, it needs info about the URL where the server app is available;
+As the client app makes calls to server endpoints, it needs info about the URL where the server app is available;
 however, the URL depends on the host and port you previously deployed the server app on.
 
-The default "host:port" setting is "localhost:8081".
+The default "host:port" setting of the app is "localhost:8081".
 But, if this information is not valid in your case, you can rewrite this configuration as a system property
-in the client app's Spring configuration file: [si-config.xml] (https://github.com/bresalio/distributed-systems-console-client/blob/master/src/main/resources/si-config.xml) (src/main/resources).
+in the client app's Spring configuration file: [si-config.xml](https://github.com/bresalio/distributed-systems-console-client/blob/master/src/main/resources/si-config.xml) (src/main/resources).
 
 The configuration takes place in the tag <beans> ... <bean id="systemProps" ...>, concretely:
 
@@ -67,9 +67,9 @@ their names end in "-0.0.1-SNAPSHOT" and "-0.0.1-SNAPSHOT.one-jar". (You can cop
 The second one is the so-called "fat" .jar, containing the dependencies.
 This is the one you should run.
 
-* Run the .jar file with this command (where <distributed-systems-console-client> refers to the path and name of the .jar file):
+* Run the .jar file with this command:
 ```
-java -jar <distributed-systems-console-client>.jar
+java -jar <jar-path-and-name>.jar
 ```
 
 * Wait for the program's own prompt (">> ") to appear, and type your command (and arguments) after it.
@@ -104,7 +104,7 @@ Queries and prints all 3 films of the server's dummy "database".
 
 * all_films_of_genre, all_films_of_director, all_films_of_actor <parameter>
 
-Queries and prints the films of the server's dummy "database" where the given genre / director / actor appears.
+They query and print the films of the server's dummy "database" where the given genre / director / actor is present.
 
 * all_films_between_length <min_length> <max_length>
 
