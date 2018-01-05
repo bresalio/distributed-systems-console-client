@@ -28,6 +28,8 @@ public class Main {
 			System.out.println("Setting up Distributed systems client program failed:" +
 					" Spring was unable to locate NamespaceHandler for an XML Schema namespace." +
 					" Make sure that the jar file was generated in a proper way.");
+		} catch (Exception e) {
+			System.out.println("Some error occurred,... bye...");
 		}
 	}
 	
