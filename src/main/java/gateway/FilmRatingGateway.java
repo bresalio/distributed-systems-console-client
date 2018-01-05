@@ -11,26 +11,24 @@ import model.Rating;
 
 public interface FilmRatingGateway {
 
-	@Payload("new java.util.Date()")
-	Collection<Film> getAllFilms();
+	Collection<Film> getAllFilms(@Payload String url);
 	
-	Collection<Film> getAllFilmsOfGenre(@Payload String genreName);
+	Collection<Film> getAllFilmsOfGenre(@Payload String url);
 	
-	Collection<Film> getAllFilmsOfDirector(@Payload String directorName);
+	Collection<Film> getAllFilmsOfDirector(@Payload String url);
 	
-	Collection<Film> getAllFilmsOfActor(@Payload String actorName);
+	Collection<Film> getAllFilmsOfActor(@Payload String url);
 	
-	@Payload("new java.util.Date()")
-	Collection<Film> getAllFilmsBetweenLength(@Header("min") String minLengthInclusive, @Header("max") String maxLengthInclusive);
+	Collection<Film> getAllFilmsBetweenLength(@Payload String url, @Header("min") String minLengthInclusive, @Header("max") String maxLengthInclusive);
 	
-	Film getFilmData(@Payload String title);
+	Film getFilmData(@Payload String url);
 	
-	boolean addRating(@Payload String title, @Header("opinion") String opinion);
+	boolean addRating(@Payload String url, @Header("opinion") String opinion);
 	
-	Collection<Rating> getRatingsOfFilm(@Payload String title);
+	Collection<Rating> getRatingsOfFilm(@Payload String url);
 	
-	Opinion getAverageRatingOfFilm(@Payload String title);
+	Opinion getAverageRatingOfFilm(@Payload String url);
 	
-	Film getOmdbFilmData(@Payload String title);
+	Film getOmdbFilmData(@Payload String url);
 	
 }

@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util" 
 	xmlns:int="http://www.springframework.org/schema/integration"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
-	xmlns:int-file="http://www.springframework.org/schema/integration/file"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:int-http="http://www.springframework.org/schema/integration/http"
 	xsi:schemaLocation="
         http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.1.xsd
+        http://www.springframework.org/schema/util
+        http://www.springframework.org/schema/util/spring-util-3.0.xsd
         http://www.springframework.org/schema/integration
         http://www.springframework.org/schema/integration/spring-integration-4.1.xsd
         http://www.springframework.org/schema/integration/stream
@@ -14,6 +19,24 @@
         http://www.springframework.org/schema/integration/http
         http://www.springframework.org/schema/integration/http/spring-integration-http-4.1.xsd
         ">
+        
+    <context:annotation-config />
+
+	<bean id="systemProps"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject" value="#{@systemProperties}" />
+		<property name="targetMethod" value="putAll" />
+		<property name="arguments">
+			<util:properties>
+				<prop key="hostAndPort">localhost:8081</prop>
+				<prop key="deploymentName">distributed-systems-server</prop>
+			</util:properties>
+		</property>
+	</bean>
+	
+	<bean id="main" class="app.Main" />
+	
+	<bean id="urlPayloadBuilder" class="gateway.UrlPayloadBuilder" />
 
 	<int:poller default="true" fixed-delay="50" />
 
@@ -27,8 +50,8 @@
 			request-timeout="1000" />
 		<int:method name="getAllFilmsOfActor" request-channel="GetAllFilmsOfActorChannel"
 			request-timeout="1000" />
-		<int:method name="getAllFilmsBetweenLength" request-channel="GetAllFilmsBetweenLengthChannel"
-			request-timeout="1000" />
+		<int:method name="getAllFilmsBetweenLength"
+			request-channel="GetAllFilmsBetweenLengthChannel" request-timeout="1000" />
 		<int:method name="getFilmData" request-channel="GetFilmDataChannel"
 			request-timeout="1000" />
 		<int:method name="addRating" request-channel="AddRatingChannel"
@@ -40,106 +63,114 @@
 		<int:method name="getOmdbFilmData" request-channel="GetOmdbFilmDataChannel"
 			request-timeout="1000" />
 	</int:gateway>
-	
+
 	<int:channel id="GetAllFilmsChannel">
-		<int:queue/>
+		<int:queue />
 	</int:channel>
-	<int:channel id="GetAllFilmsOfGenreChannel"/>
-	<int:channel id="GetAllFilmsOfDirectorChannel"/>
-	<int:channel id="GetAllFilmsOfActorChannel"/>
+	<int:channel id="GetAllFilmsOfGenreChannel" />
+	<int:channel id="GetAllFilmsOfDirectorChannel" />
+	<int:channel id="GetAllFilmsOfActorChannel" />
 	<int:channel id="GetAllFilmsBetweenLengthChannel">
-		<int:queue/>
+		<int:queue />
 	</int:channel>
-	<int:channel id="GetFilmDataChannel"/>
-	<int:channel id="AddRatingChannel"/>
-	<int:channel id="GetRatingsOfFilmChannel"/>
-	<int:channel id="GetAverageRatingOfFilmChannel"/>
+	<int:channel id="GetFilmDataChannel" />
+	<int:channel id="AddRatingChannel" />
+	<int:channel id="GetRatingsOfFilmChannel" />
+	<int:channel id="GetAverageRatingOfFilmChannel" />
 	<int:channel id="GetOmdbFilmDataChannel" />
 
-	<int-stream:stdout-channel-adapter
-		id="stdOutAdapter" channel="stdOutChannel" append-newline="true" />
-	<int:channel id="stdOutChannel" />
-	
 	<int-http:outbound-gateway request-channel="GetAllFilmsChannel"
-		url="http://localhost:8081/distributed-systems-server/getAllFilms"
+		url="{url}"
 		http-method="GET"
+		encode-uri="false"
 		expected-response-type="model.Film[]">
+		<int-http:uri-variable name="url" expression="payload" />
 	</int-http:outbound-gateway>
-	
+
 	<int-http:outbound-gateway request-channel="GetAllFilmsOfGenreChannel"
-		url="http://localhost:8081/distributed-systems-server/getAllFilmsOfGenre?genre={genre}"
+		url="{url}"
 		http-method="GET"
+		encode-uri="false"
 		expected-response-type="model.Film[]">
-		<int-http:uri-variable name="genre" expression="payload" />
+		<int-http:uri-variable name="url" expression="payload" />
 	</int-http:outbound-gateway>
-	
+
 	<int-http:outbound-gateway request-channel="GetAllFilmsOfDirectorChannel"
-		url="http://localhost:8081/distributed-systems-server/getAllFilmsOfDirector?director={director}"
+		url="{url}"
 		http-method="GET"
+		encode-uri="false"
 		expected-response-type="model.Film[]">
-		<int-http:uri-variable name="director" expression="payload" />
+		<int-http:uri-variable name="url" expression="payload" />
 	</int-http:outbound-gateway>
-	
+
 	<int-http:outbound-gateway request-channel="GetAllFilmsOfActorChannel"
-		url="http://localhost:8081/distributed-systems-server/getAllFilmsOfActor?actor={actor}"
+		url="{url}"
 		http-method="GET"
+		encode-uri="false"
 		expected-response-type="model.Film[]">
-		<int-http:uri-variable name="actor" expression="payload" />
+		<int-http:uri-variable name="url" expression="payload" />
 	</int-http:outbound-gateway>
 
 	<int-http:outbound-gateway request-channel="GetAllFilmsBetweenLengthChannel"
-		url="http://localhost:8081/distributed-systems-server/getAllFilmsBetweenLength"
+		url="{url}"
 		http-method="GET"
+		encode-uri="false"
 		expected-response-type="model.Film[]"
 		header-mapper="headerMapperGetFilmsBetweenLength">
+		<int-http:uri-variable name="url" expression="payload" />
 	</int-http:outbound-gateway>
-	
+
 	<bean id="headerMapperGetFilmsBetweenLength"
 		class="org.springframework.integration.http.support.DefaultHttpHeaderMapper">
 		<property name="outboundHeaderNames" value="min, max" />
 		<property name="userDefinedHeaderPrefix" value="" />
 	</bean>
-	
+
 	<int-http:outbound-gateway request-channel="GetFilmDataChannel"
-		url="http://localhost:8081/distributed-systems-server/getFilmData?title={title}"
+		url="{url}"
 		http-method="GET"
+		encode-uri="false"
 		expected-response-type="model.Film">
-		<int-http:uri-variable name="title" expression="payload" />
+		<int-http:uri-variable name="url" expression="payload" />
 	</int-http:outbound-gateway>
-	
+
 	<int-http:outbound-gateway request-channel="AddRatingChannel"
-		url="http://localhost:8081/distributed-systems-server/addRating?title={title}"
+		url="{url}"
 		http-method="GET"
+		encode-uri="false"
 		expected-response-type="java.lang.Boolean"
 		header-mapper="headerMapperAddRating">
-		<int-http:uri-variable name="title" expression="payload" />
+		<int-http:uri-variable name="url" expression="payload" />
 	</int-http:outbound-gateway>
-	
+
 	<bean id="headerMapperAddRating"
 		class="org.springframework.integration.http.support.DefaultHttpHeaderMapper">
 		<property name="outboundHeaderNames" value="opinion" />
 		<property name="userDefinedHeaderPrefix" value="" />
 	</bean>
-	
+
 	<int-http:outbound-gateway request-channel="GetRatingsOfFilmChannel"
-		url="http://localhost:8081/distributed-systems-server/getRatingsOfFilm?title={title}"
+		url="{url}"
 		http-method="GET"
+		encode-uri="false"
 		expected-response-type="model.Rating[]">
-		<int-http:uri-variable name="title" expression="payload" />
+		<int-http:uri-variable name="url" expression="payload" />
 	</int-http:outbound-gateway>
-	
+
 	<int-http:outbound-gateway request-channel="GetAverageRatingOfFilmChannel"
-		url="http://localhost:8081/distributed-systems-server/getAverageRatingOfFilm?title={title}"
+		url="{url}"
 		http-method="GET"
+		encode-uri="false"
 		expected-response-type="model.Opinion">
-		<int-http:uri-variable name="title" expression="payload" />
+		<int-http:uri-variable name="url" expression="payload" />
 	</int-http:outbound-gateway>
-	
+
 	<int-http:outbound-gateway request-channel="GetOmdbFilmDataChannel"
-		url="http://localhost:8081/distributed-systems-server/getOmdbFilmData?title={title}"
+		url="{url}"
 		http-method="GET"
+		encode-uri="false"
 		expected-response-type="model.Film">
-		<int-http:uri-variable name="title" expression="payload" />
+		<int-http:uri-variable name="url" expression="payload" />
 	</int-http:outbound-gateway>
 
 </beans>
